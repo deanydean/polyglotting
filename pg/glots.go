@@ -119,7 +119,7 @@ func GetNewGlotsList() GlotIndices {
     // Create the global glot list....
     return GlotIndices{
         NewSourceIndex("Go", ".go"),
-        NewSourceIndex("Javascript", "js"),
+        NewSourceIndex("Javascript", ".js"),
         NewSourceIndex("Java", ".java", ".jsp"),
         NewSourceIndex("C/C++", ".c", ".cpp", ".cc", ".h"),
         NewSourceIndex("TCL", ".tcl", ".tcsh"),
@@ -127,9 +127,12 @@ func GetNewGlotsList() GlotIndices {
         NewSourceIndex("Expect", ".exp"),
         NewSourceIndex("Python", ".py"),
         NewSourceIndex("Make", "Makefile", ".mk", ".m"),
-        NewSourceIndex("Groovy", "groovy"),
+        NewSourceIndex("Groovy", ".groovy"),
         NewSourceIndex("Ruby", ".rb"),
         NewSourceIndex("C#", ".cs"),
         NewSourceIndex("WWW", ".htm", ".html", ".css"),
+        NewSourceIndex("Rust", ".rs"),
+        NewSourceIndex("PHP", ".php"),
+        NewSourceIndex("Perl", ".pl"),
     }
 }
