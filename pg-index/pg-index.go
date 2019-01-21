@@ -7,62 +7,36 @@ import (
 	"github.com/deanydean/polyglotting/pg"
 )
 
-// Weightings
-var avgWeight = float64(0.000001)
-var devWeight = float64(0.00001)
-var maxWeight = float64(0.1)
-var minWeight = float64(10)
-
 func calcIndexRating(glots pg.GlotIndices) float64 {
-	// Get a mean average over the glots
-	// TODO review average (should be median?)
-	var glotCount = 0
-	var glotCounterSum = float64(0)
-	var glotMaxLines = float64(-1)
-	var glotMinLines = float64(-1)
+	// Get a polyglot rating for this codebase
+
+	// Get the required info before we start
+	var totalLines = int64(0)
 	for i := range glots {
-		if glots[i].LineCount > 0 {
-			glotCount++
+		totalLines += glots[i].LineCount
+	}
 
-			if float64(glots[i].LineCount) > glotMaxLines {
-				glotMaxLines = float64(glots[i].LineCount)
-			}
+	// Now work out the percentage of code for each glot
+	var glotPercents = make([]float64, glots.Len())
+	var maxPercent = float64(0)
+	for i := range glots {
+		var lines = glots[i].LineCount
+		var percent = float64(lines) / (float64(totalLines) / 100)
 
-			if glots[i].LineCount != 0 &&
-				(glotMinLines == -1 ||
-					float64(glots[i].LineCount) < glotMinLines) {
-				glotMinLines = float64(glots[i].LineCount)
-			}
-
-			glotCounterSum += float64(glots[i].LineCount)
+		if percent > maxPercent {
+			maxPercent = percent
 		}
-	}
-	var glotAvg = glotCounterSum / float64(glotCount)
 
-	// Get an average deviation rating
-	var deviation = (glotMaxLines - glotMinLines) * devWeight
-
-	// Get the number of lines between min, max and rest
-	var maxOffset = float64(0)
-	var minOffset = float64(0)
-	for i := range glots {
-		maxOffset += glotMaxLines - float64(glots[i].LineCount)
-		minOffset += float64(glots[i].LineCount) - glotMinLines
+		glotPercents[i] = percent
 	}
 
-	fmt.Println("Raw data points: ")
-	fmt.Println("glots", glotCount, "avg", glotAvg, "dev", deviation,
-		"maxLines", glotMaxLines, "minLines", glotMinLines,
-		"maxOff", maxOffset, "minOff", minOffset)
+	// Work out the point scoring for each glot
+	var points = float64(0)
+	for i := range glotPercents {
+		points += glotPercents[i] / maxPercent
+	}
 
-	var calcMaxDev = deviation / (maxOffset * maxWeight)
-	var calcMinDev = deviation * (minOffset * minWeight)
-
-	fmt.Println("Calc values:")
-	fmt.Println("calcMaxDev", calcMaxDev, "calcMinDev", calcMinDev)
-
-	// Return rating
-	return (glotAvg * avgWeight) * (calcMinDev + calcMaxDev)
+	return points
 }
 
 func main() {
@@ -82,5 +56,5 @@ func main() {
 
 	var rating = calcIndexRating(glots)
 
-	fmt.Printf("Polyglot rating is %.2f\n", rating)
+	fmt.Printf("%.3f\n", rating)
 }
